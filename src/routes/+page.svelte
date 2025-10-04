@@ -1,21 +1,35 @@
 <script lang="ts">
+	import { marked, Renderer } from 'marked';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import Input from '$lib/components/ui/input/input.svelte';
 	import { testForm } from './a.remote';
+
+	$effect(() => {
+		const renderer = {
+			code({ raw, text }) {
+				console.log(raw, text);
+				const copy = navigator.clipboard.writeText(text);
+				return `
+			<button onclick={${() => copy}}>copy!</button>
+            <code>
+              ${text}
+            </code>`;
+			}
+		} satisfies Partial<Renderer>;
+
+		marked.use({ renderer });
+	});
 </script>
 
-<h1>Welcome to SvelteKit</h1>
-<p>Visit <a href="https://svelte.dev/docs/kit">svelte.dev/docs/kit</a> to read the documentation</p>
+<!-- eslint-disable svelte/no-at-html-tags -->
 <form enctype="multipart/form-data" {...testForm}>
 	<Input type="file" name="files[]" />
 	<Input type="text" name={testForm.field('additionalContext')} />
 	<Button type="submit">Submit</Button>
 </form>
 
-{#if testForm.result?.result}
-	{testForm.result.result}
-{/if}
-
-{#if testForm.issues}
-	{JSON.stringify(testForm.issues)}
-{/if}
+<div class="prose">
+	{#if testForm.result?.result}
+		{@html marked.parse(testForm.result.result)}
+	{/if}
+</div>

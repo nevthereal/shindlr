@@ -49,7 +49,9 @@
 	"dependencies": {
 		"@ai-sdk/gateway": "^1.0.33",
 		"@ai-sdk/svelte": "^3.0.60",
+		"@tailwindcss/typography": "^0.5.19",
 		"ai": "^5.0.60",
+		"marked": "^16.3.0",
 		"zod": "^4.1.11"
 	}
 }

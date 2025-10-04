@@ -13,14 +13,6 @@ export const testForm = form(
 		additionalContext: z.string()
 	}),
 	async ({ files, additionalContext }) => {
-		const fileArrayBuffers = await Promise.all(
-			files.map(async (f) => ({
-				buffer: await f.arrayBuffer(),
-				mimeType: f.type,
-				filename: f.name
-			}))
-		);
-
 		const { text } = await generateText({
 			model: gateway('openai/gpt-5-mini'),
 			messages: [
@@ -35,12 +27,14 @@ export const testForm = form(
 				},
 				{
 					role: 'user',
-					content: fileArrayBuffers.map((file) => ({
-						type: 'file',
-						data: file.buffer,
-						mediaType: file.mimeType,
-						filename: file.filename
-					}))
+					content: await Promise.all(
+						files.map(async (file) => ({
+							type: 'file' as const,
+							data: await file.arrayBuffer(),
+							mediaType: file.type,
+							filename: file.name
+						}))
+					)
 				}
 			]
 		});
